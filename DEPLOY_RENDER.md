@@ -4,7 +4,7 @@ Render deployment steps
 2. In Render dashboard, create a new Web Service and connect your repository.
    - If you want Render to build the Docker image, select "Docker" (it will use `Dockerfile`).
 3. In the service settings, add the required environment variables:
-   - `MONGO_URI` -> your MongoDB connection string
+   - `MONGODB_URI` -> your MongoDB connection string
    - `JWT_SECRET` -> secret for JWT signing
 4. Deploy. Render will build and start the container.
 

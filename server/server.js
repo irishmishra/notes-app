@@ -1,15 +1,22 @@
+const crypto = require("crypto");
+global.crypto = crypto;
+
 const express = require("express");
 const cors = require("cors");
 const path = require("path");
+
 require("dotenv").config();
 
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 
 const app = express();
+
 const clientPath = path.join(__dirname, "../client");
 
-if (process.env.MONGODB_URI) {
+const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
+
+if (mongoUri) {
   connectDB();
 } else {
   console.log(
@@ -20,14 +27,17 @@ if (process.env.MONGODB_URI) {
 // Middleware
 app.use(cors());
 app.use(express.json());
-// Simple request logger to help debug why some paths return 404 in browsers
+
+// Request logger
 app.use((req, res, next) => {
   console.log(new Date().toISOString(), req.method, req.originalUrl);
   next();
 });
+
+// Static files
 app.use(express.static(clientPath));
 
-// Explicitly serve auth pages to avoid client-side routing issues
+// Auth pages
 app.get("/login.html", (req, res) => {
   res.sendFile(path.join(clientPath, "login.html"));
 });
@@ -41,10 +51,13 @@ app.use("/api/auth", authRoutes);
 
 // Health route
 app.get("/api/health", (req, res) => {
-  res.json({ status: "ok", message: "Notes App API is running 🚀" });
+  res.json({
+    status: "ok",
+    message: "Notes App API is running 🚀",
+  });
 });
 
-// Catch-all for non-API routes (exclude paths starting with /api)
+// Catch-all route
 app.get(/^\/(?!api).*/, (req, res) => {
   return res.sendFile(path.join(clientPath, "index.html"));
 });
