@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: notes-app
+    env: docker
+    plan: free
+    dockerfilePath: Dockerfile
+    startCommand: npm start
+    envVars:
+      - key: MONGO_URI
+      - key: JWT_SECRET
+      - key: NODE_ENV
+        value: production

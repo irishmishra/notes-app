@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <title>Notes App</title>
+
+    <link rel="stylesheet" href="./css/style.css" />
+
+    <!-- Font Awesome Icons -->
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+  </head>
+
+  <body>
+    <div class="app">
+      <!-- ================= SIDEBAR ================= -->
+
+      <aside class="sidebar">
+        <div class="logo">
+          <button class="logo-icon" id="menuBtn">
+            <i class="fa-solid fa-bars"></i>
+          </button>
+
+          <h1>Notes</h1>
+        </div>
+
+        <button class="new-note-btn" id="newNoteBtn">
+          <i class="fa-solid fa-plus"></i>
+          <span>New Note</span>
+        </button>
+
+        <nav class="navigation">
+          <button class="nav-item active" id="allNotesBtn">
+            <i class="fa-solid fa-note-sticky"></i>
+            <span>All Notes</span>
+          </button>
+
+          <button class="nav-item" id="favoritesBtn">
+            <i class="fa-regular fa-star"></i>
+            <span>Favorites</span>
+          </button>
+
+          <button class="nav-item" id="trashBtn">
+            <i class="fa-regular fa-trash-can"></i>
+            <span>Trash</span>
+          </button>
+        </nav>
+
+        <div class="sidebar-bottom">
+          <div class="dark-mode">
+            <div class="dark-mode-label">
+              <i class="fa-solid fa-moon"></i>
+              <span>Dark Mode</span>
+            </div>
+
+            <label class="switch">
+              <input type="checkbox" id="themeToggle" />
+              <span class="slider"></span>
+            </label>
+          </div>
+
+          <button class="settings-btn" id="settingsBtn">
+            <i class="fa-solid fa-gear"></i>
+            <span>Settings</span>
+          </button>
+
+          <a href="/login.html" class="settings-btn" id="authBtn">
+            <i class="fa-solid fa-right-to-bracket"></i>
+            <span id="authBtnText">Login</span>
+          </a>
+
+          <div class="user-profile">
+            <div class="avatar">U</div>
+
+            <div class="user-info">
+              <h4>User</h4>
+              <p>user@example.com</p>
+            </div>
+          </div>
+        </div>
+      </aside>
+
+      <!-- ================= NOTES PANEL ================= -->
+
+      <section class="notes-list notes-panel" id="notesPanel">
+        <div class="search-box">
+          <i class="fa-solid fa-magnifying-glass"></i>
+
+          <input
+            type="text"
+            id="searchInput"
+            placeholder="Search notes..."
+            autocomplete="off"
+          />
+        </div>
+
+        <div class="notes-container" id="notesContainer"></div>
+      </section>
+
+      <!-- ================= NOTE EDITOR ================= -->
+
+      <main class="editor ne">
+        <header class="editor-header">
+          <span id="saveStatus"> No note selected </span>
+
+          <div class="editor-actions">
+            <button type="button" id="favoriteBtn" title="Favorite note">
+              <i class="fa-regular fa-star"></i>
+            </button>
+
+            <button type="button" id="deleteBtn" title="Delete note">
+              <i class="fa-regular fa-trash-can"></i>
+            </button>
+
+            <button type="button" id="moreBtn" title="More options">
+              <i class="fa-solid fa-ellipsis-vertical"></i>
+            </button>
+          </div>
+        </header>
+
+        <input
+          type="text"
+          class="note-title"
+          id="noteTitle"
+          placeholder="Untitled Note"
+          autocomplete="off"
+          disabled
+        />
+
+        <!-- ================= TOOLBAR ================= -->
+
+        <div class="toolbar">
+          <button type="button" id="boldBtn" title="Bold">
+            <b>B</b>
+          </button>
+
+          <button type="button" id="italicBtn" title="Italic">
+            <i>I</i>
+          </button>
+
+          <button type="button" id="underlineBtn" title="Underline">
+            <u>U</u>
+          </button>
+
+          <div class="divider"></div>
+
+          <button type="button" id="bulletListBtn" title="Bullet List">
+            <i class="fa-solid fa-list-ul"></i>
+          </button>
+
+          <button type="button" id="numberListBtn" title="Numbered List">
+            <i class="fa-solid fa-list-ol"></i>
+          </button>
+
+          <div class="divider"></div>
+
+          <button type="button" id="undoBtn" title="Undo">
+            <i class="fa-solid fa-arrow-rotate-left"></i>
+          </button>
+
+          <button type="button" id="redoBtn" title="Redo">
+            <i class="fa-solid fa-arrow-rotate-right"></i>
+          </button>
+        </div>
+
+        <!-- ================= CONTENT EDITOR ================= -->
+
+        <div
+          class="editor-content"
+          id="noteContent"
+          contenteditable="false"
+          data-placeholder="Start writing your note..."
+        ></div>
+      </main>
+    </div>
+    </div>
+
+    <!-- Auth Modal -->
+    <div class="auth-modal hidden" id="authModal">
+      <div class="auth-card">
+        <button class="auth-close" id="authClose">&times;</button>
+        <h3 id="authTitle">Login</h3>
+
+        <form id="authForm">
+          <div class="form-group">
+            <label for="authEmail">Email</label>
+            <input type="email" id="authEmail" required />
+          </div>
+
+          <div class="form-group">
+            <label for="authPassword">Password</label>
+            <input type="password" id="authPassword" required />
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" id="authSubmit">Login</button>
+            <button type="button" id="switchAuth">Switch to Register</button>
+          </div>
+
+          <div class="auth-error" id="authError" aria-live="polite"></div>
+        </form>
+      </div>
+    </div>
+
+    <script src="./js/app.js"></script>
+    <script src="./js/auth.js"></script>
+  </body>
+</html>
