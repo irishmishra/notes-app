@@ -6,7 +6,7 @@ services:
     dockerfilePath: Dockerfile
     startCommand: npm start
     envVars:
-      - key: MONGO_URI
+      - key: mongodb+srv://bikshiptar_db_user:dmL8iMM3XMylgYE4@notes-app.i4sa5oa.mongodb.net/?appName=notes-app
       - key: JWT_SECRET
       - key: NODE_ENV
         value: production
