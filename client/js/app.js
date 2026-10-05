@@ -10,11 +10,16 @@ const noteTitle = document.getElementById("noteTitle");
 const noteContent = document.getElementById("noteContent");
 
 const searchInput = document.getElementById("searchInput");
+const searchBtn = document.getElementById("searchBtn");
+const settingsBtn = document.getElementById("settingsBtn");
 const themeToggle = document.getElementById("themeToggle");
 
 const deleteBtn = document.getElementById("deleteBtn");
 const favoriteBtn = document.getElementById("favoriteBtn");
 const saveBtn = document.getElementById("saveBtn");
+const attachmentBtn = document.getElementById("attachmentBtn");
+const moreBtn = document.getElementById("moreBtn");
+const notesMoreBtn = document.getElementById("notesMoreBtn");
 
 const allNotesBtn = document.getElementById("allNotesBtn");
 const notesListBtn = document.getElementById("notesListBtn");
@@ -40,6 +45,132 @@ const notesPanel = document.getElementById("notesPanel");
 const editorBackBtn = document.getElementById("editorBackBtn");
 const notesListCloseBtn = document.getElementById("notesListCloseBtn");
 
+const actionMenu = document.createElement("div");
+actionMenu.className = "action-menu hidden";
+actionMenu.setAttribute("role", "menu");
+actionMenu.innerHTML = `
+  <button type="button" data-menu-action="clear-search">Clear search</button>
+  <button type="button" data-menu-action="reset-view">Reset view</button>
+  <button type="button" data-menu-action="empty-trash">Empty trash</button>
+  <button type="button" data-menu-action="duplicate-note">Duplicate note</button>
+  <button type="button" data-menu-action="clear-note">Clear note</button>
+`;
+document.body.appendChild(actionMenu);
+
+function toggleActionMenu(button, menuType) {
+  const isOpen = !actionMenu.classList.contains("hidden");
+  const currentType = actionMenu.dataset.menuType;
+
+  if (isOpen && currentType === menuType) {
+    actionMenu.classList.add("hidden");
+    return;
+  }
+
+  const rect = button.getBoundingClientRect();
+  const menuWidth = 220;
+  const menuHeight = 220;
+  const left = Math.min(rect.left, window.innerWidth - menuWidth - 8);
+  const top = Math.min(rect.bottom + 10, window.innerHeight - menuHeight - 8);
+
+  actionMenu.dataset.menuType = menuType;
+  actionMenu.style.left = `${Math.max(8, left)}px`;
+  actionMenu.style.top = `${Math.max(8, top)}px`;
+
+  const actions = [...actionMenu.querySelectorAll("button[data-menu-action]")];
+
+  actions.forEach((actionButton) => {
+    const action = actionButton.dataset.menuAction;
+    const shouldShow =
+      (menuType === "notes" &&
+        ((action === "clear-search" && searchInput.value.trim()) ||
+          action === "reset-view" ||
+          (action === "empty-trash" && notes.some((note) => note.deleted)))) ||
+      (menuType === "editor" &&
+        ((action === "duplicate-note" && !!getActiveNote()) ||
+          (action === "clear-note" && !!getActiveNote())));
+
+    actionButton.style.display = shouldShow ? "flex" : "none";
+  });
+
+  actionMenu.classList.remove("hidden");
+}
+
+function closeActionMenu() {
+  actionMenu.classList.add("hidden");
+  delete actionMenu.dataset.menuType;
+}
+
+document.addEventListener("click", function (event) {
+  const menuAction = event.target.closest("[data-menu-action]");
+  if (menuAction) {
+    const action = menuAction.dataset.menuAction;
+
+    if (action === "clear-search") {
+      searchInput.value = "";
+      renderNotes();
+    }
+
+    if (action === "reset-view") {
+      currentView = "all";
+      setActiveNavigation(allNotesBtn);
+      searchInput.value = "";
+      renderNotes();
+    }
+
+    if (action === "empty-trash") {
+      notes = notes.filter((note) => !note.deleted);
+      saveNotes();
+      currentView = "all";
+      setActiveNavigation(allNotesBtn);
+      renderNotes();
+      saveStatus.textContent = "Trash emptied";
+    }
+
+    if (action === "duplicate-note") {
+      const note = getActiveNote();
+      if (!note) return;
+      const clonedNote = {
+        ...note,
+        id: Date.now(),
+        title: `${note.title || "Untitled Note"} Copy`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        deleted: false,
+      };
+
+      notes.unshift(clonedNote);
+      activeNoteId = clonedNote.id;
+      saveNotes();
+      renderNotes();
+      openNote(clonedNote.id);
+    }
+
+    if (action === "clear-note") {
+      const note = getActiveNote();
+      if (!note) return;
+      note.content = "";
+      note.title = "Untitled Note";
+      note.updatedAt = new Date().toISOString();
+      saveNotes();
+      noteTitle.value = "";
+      noteContent.innerHTML = "";
+      renderNotes();
+      saveStatus.textContent = "Note cleared";
+    }
+
+    closeActionMenu();
+    return;
+  }
+
+  if (
+    !event.target.closest(".action-menu") &&
+    !event.target.closest("#notesMoreBtn") &&
+    !event.target.closest("#moreBtn")
+  ) {
+    closeActionMenu();
+  }
+});
+
 function createNewNote() {
   const newNote = {
     id: Date.now(),
@@ -61,6 +192,18 @@ function createNewNote() {
 
 newNoteBtn.addEventListener("click", createNewNote);
 newNoteFab.addEventListener("click", createNewNote);
+
+searchBtn.addEventListener("click", function () {
+  searchInput.focus();
+  searchInput.select();
+});
+
+settingsBtn.addEventListener("click", function () {
+  document.body.classList.toggle("sidebar-collapsed");
+  saveStatus.textContent = document.body.classList.contains("sidebar-collapsed")
+    ? "Sidebar compact"
+    : "Sidebar expanded";
+});
 
 notesListBtn.addEventListener("click", function () {
   const hidden = !notesPanel.classList.contains("hidden");
@@ -85,6 +228,46 @@ saveBtn.addEventListener("click", function () {
   saveNotes();
   saveStatus.textContent = "Saved";
   renderNotes();
+});
+
+notesMoreBtn.addEventListener("click", function (event) {
+  event.stopPropagation();
+  toggleActionMenu(notesMoreBtn, "notes");
+});
+
+moreBtn.addEventListener("click", function (event) {
+  event.stopPropagation();
+  toggleActionMenu(moreBtn, "editor");
+});
+
+attachmentBtn.addEventListener("click", function () {
+  const note = getActiveNote();
+  if (!note) {
+    saveStatus.textContent = "Select a note first";
+    return;
+  }
+
+  const fileInput = document.createElement("input");
+  fileInput.type = "file";
+  fileInput.accept = "image/*,.pdf,.txt,.doc,.docx";
+
+  fileInput.addEventListener("change", function () {
+    const selectedFile = fileInput.files && fileInput.files[0];
+    if (!selectedFile) return;
+
+    const attachmentMarkup = `
+      <p><strong>Attachment:</strong> <span>${escapeHTML(selectedFile.name)}</span></p>
+    `;
+
+    note.content = `${note.content || ""}${attachmentMarkup}`;
+    note.updatedAt = new Date().toISOString();
+    saveNotes();
+    noteContent.innerHTML = note.content;
+    saveStatus.textContent = "Attachment added";
+    renderNotes();
+  });
+
+  fileInput.click();
 });
 
 // ==============================

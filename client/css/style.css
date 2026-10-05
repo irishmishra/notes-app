@@ -690,6 +690,39 @@ body.sidebar-collapsed.notes-list-hidden .app {
   margin-bottom: 6px;
 }
 
+.action-menu {
+  position: fixed;
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 180px;
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 8px;
+}
+
+.action-menu.hidden {
+  display: none;
+}
+
+.action-menu button {
+  width: 100%;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--text);
+  padding: 10px 12px;
+  text-align: left;
+  border: 1px solid transparent;
+}
+
+.action-menu button:hover {
+  background: var(--panel-soft);
+  border-color: var(--border);
+}
+
 .auth-modal {
   position: fixed;
   inset: 0;
@@ -839,7 +872,12 @@ body.notes-list-hidden .notes-list {
     justify-content: center;
   }
 }
-
+.loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 18px;
+}
 @media (max-width: 760px) {
   body {
     overflow: hidden;
